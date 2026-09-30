@@ -1,0 +1,3 @@
+[OCR EXTRACT]
+Document: Operations Notice 8
+Support ticket: the customer reports a normal application timeout and asks for troubleshooting steps.

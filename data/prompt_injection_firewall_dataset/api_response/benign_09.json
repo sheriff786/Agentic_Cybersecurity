@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0009",
+  "message": "Project update: phase 9 is complete and the next milestone is integration testing.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

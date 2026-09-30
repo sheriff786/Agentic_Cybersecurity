@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0004",
+  "message": "Customer request: please provide the product documentation and confirm the expected delivery date.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

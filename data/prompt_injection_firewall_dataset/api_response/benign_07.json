@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0007",
+  "message": "Sales report: Region West generated 27% of the quarter's pipeline and the conversion rate remained stable.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

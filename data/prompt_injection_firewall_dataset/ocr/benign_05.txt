@@ -1,0 +1,3 @@
+[OCR EXTRACT]
+Document: Operations Notice 5
+Engineering note: the service uses REST endpoints, JSON payloads, structured logging, and automated tests.

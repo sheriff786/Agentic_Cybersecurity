@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0006",
+  "message": "HR announcement: employees should complete the annual policy acknowledgement by the stated deadline.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

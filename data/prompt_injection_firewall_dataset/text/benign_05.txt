@@ -1,0 +1,1 @@
+Engineering note: the service uses REST endpoints, JSON payloads, structured logging, and automated tests.

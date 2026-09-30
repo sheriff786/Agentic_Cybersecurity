@@ -1,0 +1,59 @@
+{
+  "total_files": 200,
+  "malicious": 100,
+  "benign": 100,
+  "per_source": {
+    "pdf": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "html": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "email": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "markdown": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "word": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "api_response": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "ocr": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "source_code": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "image": {
+      "malicious": 10,
+      "benign": 10
+    },
+    "text": {
+      "malicious": 10,
+      "benign": 10
+    }
+  },
+  "attack_types": [
+    "instruction_override",
+    "role_change",
+    "secret_extraction",
+    "tool_abuse",
+    "credential_theft",
+    "context_poisoning",
+    "multi_step_jailbreak",
+    "encoded_instructions",
+    "indirect_prompt_injection",
+    "output_manipulation"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0010",
+  "message": "Knowledge-base article: this document explains the standard process for requesting access to an internal application.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

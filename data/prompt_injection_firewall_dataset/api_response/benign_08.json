@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0008",
+  "message": "Support ticket: the customer reports a normal application timeout and asks for troubleshooting steps.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

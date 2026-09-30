@@ -1,0 +1,5 @@
+From: operations@example.com
+To: team@example.com
+Subject: Routine update 5
+
+Engineering note: the service uses REST endpoints, JSON payloads, structured logging, and automated tests.

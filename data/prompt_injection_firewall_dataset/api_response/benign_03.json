@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "request_id": "req-0003",
+  "message": "Invoice summary: invoice INV-003 is for standard consulting services, total amount INR 11125. Payment is due within 30 days.",
+  "data": {
+    "active": true,
+    "priority": "normal"
+  }
+}

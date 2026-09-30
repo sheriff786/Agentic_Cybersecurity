@@ -1,0 +1,1 @@
+Support ticket: the customer reports a normal application timeout and asks for troubleshooting steps.
