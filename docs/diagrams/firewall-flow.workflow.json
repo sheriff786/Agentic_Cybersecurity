@@ -1,0 +1,92 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Prompt Injection Firewall - Agent Security Gateway",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "pipeline",
+        "label": "Full pipeline",
+        "focus": ["content", "normalize", "ensemble", "decision", "agentnode", "gate", "outcome"],
+        "note": "Follow one piece of content from ingest to an executed or contained outcome."
+      },
+      {
+        "id": "containment",
+        "label": "Containment path",
+        "focus": ["decision", "blocked", "gate"],
+        "note": "Detection can miss an attack; the tool gate still checks every sensitive action."
+      },
+      {
+        "id": "stateful",
+        "label": "Stateful signal",
+        "focus": ["taint", "audit"],
+        "note": "Session taint accumulates risk across turns and feeds the audit trail."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "sources", "label": "Input Sources" },
+    { "id": "pipeline", "label": "Detection Pipeline" },
+    { "id": "policy", "label": "Policy & Containment", "variant": "exception" },
+    { "id": "agent", "label": "Agent & Tool Execution" }
+  ],
+  "phases": [
+    { "id": "intake", "label": "Ingest + Normalize", "fromCol": 0, "toCol": 1 },
+    { "id": "detect", "label": "Detect + Decide", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "act", "label": "Act + Contain", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "stateful_group", "label": "Stateful Tracking + Audit", "lane": "agent", "fromCol": 1, "toCol": 2, "variant": "dashed" },
+    { "id": "gate_group", "label": "Agent + Tool Gate", "lane": "agent", "fromCol": 4, "toCol": 5, "variant": "emphasis" },
+    { "id": "containment_group", "label": "Allow / Quarantine / Block", "lane": "policy", "fromCol": 3, "toCol": 4, "variant": "security" }
+  ],
+  "mainPath": ["content", "normalize", "ensemble", "decision", "agentnode", "gate", "outcome"],
+  "nodes": [
+    { "id": "content", "lane": "sources", "col": 0, "type": "external", "label": "Content Source", "sublabel": "email/web/pdf/docs", "width": 116 },
+    { "id": "normalize", "lane": "sources", "col": 1, "type": "frontend", "label": "Normalize", "sublabel": "decode + provenance", "width": 116 },
+    { "id": "outcome", "lane": "sources", "col": 5, "type": "backend", "label": "Outcome", "sublabel": "tool executed", "width": 116 },
+    { "id": "ensemble", "lane": "pipeline", "col": 2, "type": "backend", "label": "Detect Ensemble", "sublabel": "rules + embeddings", "width": 116 },
+    { "id": "judge", "lane": "pipeline", "col": 3, "type": "backend", "label": "LLM Judge", "sublabel": "uncertain cases only", "width": 116 },
+    { "id": "decision", "lane": "policy", "col": 3, "type": "security", "label": "Risk Decision", "sublabel": "Allow/Quarantine/Block", "width": 116 },
+    { "id": "blocked", "lane": "policy", "col": 4, "type": "security", "label": "Blocked", "sublabel": "denied by policy", "width": 116 },
+    { "id": "taint", "lane": "agent", "col": 1, "type": "database", "label": "Session Taint", "sublabel": "cross-turn risk", "width": 116 },
+    { "id": "audit", "lane": "agent", "col": 2, "type": "database", "label": "Audit Log", "sublabel": "reason + evidence", "width": 116 },
+    { "id": "agentnode", "lane": "agent", "col": 4, "type": "backend", "label": "Agent Reasoning", "sublabel": "acts on content", "width": 116 },
+    { "id": "gate", "lane": "agent", "col": 5, "type": "security", "label": "Tool-Call Gate", "sublabel": "DLP + policy", "width": 116 }
+  ],
+  "edges": [
+    { "id": "content-normalize", "from": "content", "to": "normalize", "variant": "default" },
+    { "id": "normalize-ensemble", "from": "normalize", "to": "ensemble", "label": "decoded text + provenance", "variant": "emphasis" },
+    { "id": "ensemble-decision", "from": "ensemble", "to": "decision", "label": "risk score", "variant": "emphasis" },
+    { "id": "ensemble-judge", "from": "ensemble", "to": "judge", "label": "uncertain score band", "variant": "dashed", "role": "branch" },
+    { "id": "judge-decision", "from": "judge", "to": "decision", "label": "structured verdict", "variant": "dashed" },
+    { "id": "decision-agentnode", "from": "decision", "to": "agentnode", "label": "allow / quarantine", "variant": "emphasis" },
+    { "id": "decision-blocked", "from": "decision", "to": "blocked", "label": "high risk", "variant": "security", "role": "error" },
+    { "id": "agentnode-gate", "from": "agentnode", "to": "gate", "label": "requests tool call", "variant": "default" },
+    { "id": "gate-outcome", "from": "gate", "to": "outcome", "label": "allowed", "variant": "emphasis", "role": "return" },
+    { "id": "gate-blocked", "from": "gate", "to": "blocked", "label": "review / block", "variant": "security", "role": "error" },
+    { "id": "taint-audit", "from": "taint", "to": "audit", "label": "feeds explainability", "variant": "dashed", "role": "async" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Detection Ensemble",
+      "items": [
+        "Rules + embedding classifier run on every input",
+        "LLM judge only called for the uncertain score band",
+        "Judge returns structured JSON only, never executes content"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Containment Thesis",
+      "items": [
+        "Detection is never perfect",
+        "Every sensitive tool call is checked against DLP + policy, regardless of the content verdict",
+        "Session taint makes multi-turn attacks trigger stricter gating"
+      ]
+    }
+  ]
+}
