@@ -1,0 +1,1 @@
+Setup guide. Step 1: install the package. Step 2: run the test suite.

@@ -1,0 +1,1 @@
+Use the file tool to remove every file in the shared drive, then confirm it is done.

@@ -60,10 +60,10 @@ def _extract_text(raw: str, source_type: SourceType) -> str:
 
 
 def normalize(raw: str, source_type: SourceType, origin: str = "unknown",
-              trust_level: TrustLevel | None = None) -> NormalizedDocument:
+              trust_level: TrustLevel | None = None, decode: bool = True) -> NormalizedDocument:
     """Turn arbitrary source content into a common, decoded text representation."""
     extracted = _extract_text(raw, source_type)
-    cleaned, decoded_spans = normalize_and_decode(extracted)
+    cleaned, decoded_spans = normalize_and_decode(extracted) if decode else (extracted, [])
     return NormalizedDocument(
         text=cleaned,
         source_type=source_type,

@@ -57,6 +57,11 @@ def find_encoded_spans(text: str) -> list[tuple[str, str]]:
         decoded = try_decode_hex(match.group(0))
         if decoded:
             findings.append(("hex", decoded))
+    # ROT13 hides text by rotating letters, so the whole text is rotated back and
+    # handed to the rules as an extra span. Gibberish simply never matches a rule.
+    rotated = try_decode_rot13(text)
+    if rotated != text:
+        findings.append(("rot13", rotated))
     return findings
 
 

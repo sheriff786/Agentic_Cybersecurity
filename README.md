@@ -32,8 +32,31 @@ honestly, on purpose).
 ```powershell
 pip install -e .[service,parsers,dev]
 python -m demo_agent.run_demo
+python -m eval.run_eval
 pytest
 uvicorn service.main:app --reload
+```
+
+## Implementation status (read this before claiming anything)
+
+| Component | Status |
+|---|---|
+| Normalize: zero-width, homoglyph, base64, hex, ROT13, hidden HTML | implemented |
+| Rule detectors (9 attack types, per-type calibrated weights) | implemented |
+| "Embedding classifier" | **placeholder**: a lexical keyword score behind the same interface, not an embedding model |
+| LLM judge | **interface + OpenAI backend** (`detection/judge_backends.py`); runs only if you pass `judge_backend=`. Routed to when the score is uncertain OR when untrusted content is action-bearing (verb + email/URL/path), so plain-language attacks reach it. Verified with mocked clients, not a live API |
+| Trust weighting, 3-tier Allow/Quarantine/Block, session taint | implemented |
+| Tool gate: sensitive-path reads, DLP + secret registry, external-send review | implemented; sensitivity comes from naming/patterns/registry (see failure cases) |
+| Human review of REVIEW outcomes | `approver` callback in the demo agent (default deny) |
+| Eval harness (recall, FPR flagged/blocked, latency, ablation, attack success rate) | implemented; ships with a small **hand-written seed set**, so numbers are a harness check, not a benchmark |
+
+Evaluation discipline: `python -m eval.import_public_dataset` splits any public dataset into a
+DEV half (tune against it) and a TEST half (run once, quote only those numbers):
+```
+python -m eval.run_eval --split seed   # hand-written harness check
+python -m eval.run_eval --split dev    # tune here
+python -m eval.run_eval --split test   # final report only
+python -m eval.run_eval --split dev --judge openai   # needs OPENAI_API_KEY
 ```
 
 ## Attack coverage (target: 7 of 9 for F3)

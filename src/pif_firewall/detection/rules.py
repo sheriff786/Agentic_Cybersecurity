@@ -58,6 +58,23 @@ _PATTERNS: dict[AttackType, list[re.Pattern]] = {
 }
 
 
+# Calibrated per attack type. A single generic phrase ("ignore previous
+# instructions") must NOT reach the block threshold on its own once the
+# retrieved-content trust multiplier is applied (0.5 x 1.35 = 0.675 -> quarantine),
+# while highly specific patterns (hidden-instruction markers, "send ... silently")
+# are strong enough to block alone. Two independent hits always block.
+_WEIGHTS: dict[AttackType, float] = {
+    AttackType.INSTRUCTION_OVERRIDE: 0.5,
+    AttackType.ROLE_CHANGE: 0.5,
+    AttackType.SECRET_EXTRACTION: 0.5,
+    AttackType.TOOL_ABUSE: 0.8,
+    AttackType.CREDENTIAL_THEFT: 0.5,
+    AttackType.CONTEXT_POISONING: 0.5,
+    AttackType.MULTI_STEP_JAILBREAK: 0.4,
+    AttackType.INDIRECT_INJECTION: 0.7,
+}
+
+
 def scan(text: str) -> list[RuleMatch]:
     """Run every compiled pattern against the text; cheap, deterministic, explainable."""
     matches: list[RuleMatch] = []
@@ -65,5 +82,6 @@ def scan(text: str) -> list[RuleMatch]:
         for pattern in patterns:
             found = pattern.search(text)
             if found:
-                matches.append(RuleMatch(attack_type=attack_type, evidence=found.group(0), weight=0.6))
+                matches.append(RuleMatch(attack_type=attack_type, evidence=found.group(0),
+                                        weight=_WEIGHTS.get(attack_type, 0.5)))
     return matches

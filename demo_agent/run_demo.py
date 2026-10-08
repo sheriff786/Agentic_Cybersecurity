@@ -1,9 +1,16 @@
 """CLI entry point: `python -m demo_agent.run_demo`"""
-from demo_agent.scenarios import scene_benign_passthrough, scene_with_firewall, scene_without_firewall
+from demo_agent.scenarios import (
+    scene_benign_passthrough,
+    scene_evasive_contained,
+    scene_evasive_detection_only,
+    scene_with_firewall,
+    scene_without_firewall,
+)
 
 
 def main() -> None:
-    for scene in (scene_without_firewall, scene_with_firewall, scene_benign_passthrough):
+    for scene in (scene_without_firewall, scene_with_firewall, scene_evasive_contained,
+                  scene_evasive_detection_only, scene_benign_passthrough):
         for line in scene():
             print(line)
         print()

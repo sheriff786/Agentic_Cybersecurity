@@ -217,3 +217,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# held-out public eval slices (check dataset licence before committing)
+data/attacks/public_*/
+data/benign/public_*/
