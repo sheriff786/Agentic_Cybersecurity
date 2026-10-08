@@ -41,12 +41,13 @@ class Firewall:
 
     # ---- content scanning -------------------------------------------------
     def scan(self, raw_text: str, source_type: SourceType, session_id: str = "default",
-             origin: str = "unknown", trust_level: TrustLevel | None = None) -> ScanResult:
+        origin: str = "unknown", trust_level: TrustLevel | None = None) -> ScanResult:
+        # print(f\"FIREWALL SCAN ENTER: raw_text={raw_text[:50]}, source_type={source_type}, judge_on_action={self.judge_on_action}\", flush=True)
         doc = normalize(raw_text, source_type, origin=origin, trust_level=trust_level,
                         decode=self.use_normalization)
         assessment = assess(doc.text, decoded_spans=doc.decoded_spans,
                             judge_backend=self.judge_backend, use_classifier=self.use_classifier,
-                            judge_on_action=self.judge_on_action and doc.trust_level != TrustLevel.USER)
+                            judge_on_action=self.judge_on_action)
         if self.use_trust_weighting:
             assessment.risk_score = weighted_risk(assessment.risk_score, doc.trust_level)
 

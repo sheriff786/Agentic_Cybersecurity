@@ -1,14 +1,25 @@
 """Thin FastAPI wrapper around the pif_firewall core library - drop-in HTTP
 API for any agent framework, per the 'Agent Security Gateway' positioning."""
+import os
 from fastapi import FastAPI
+from dotenv import load_dotenv
 
 from pif_firewall.firewall import Firewall
 from pif_firewall.ingest.document import SourceType
+from pif_firewall.detection.judge_backends import make_openai_judge
 
 from service.schemas import GateRequest, GateResponse, ScanRequest, ScanResponse
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Optionally enable LLM judge if OpenAI API key is present
+_openai_key = os.getenv("OPENAI_API_KEY")
+_judge_backend = make_openai_judge() if _openai_key else None
+
 app = FastAPI(title="Prompt Injection Firewall - Agent Security Gateway")
-firewall = Firewall()
+firewall = Firewall(judge_backend=_judge_backend, judge_on_action=True)
+print(f'FIREWALL MAIN: judge_backend={_judge_backend is not None}, judge_on_action={firewall.judge_on_action}', flush=True)
 
 
 @app.post("/scan", response_model=ScanResponse)
@@ -33,3 +44,4 @@ def gate(req: GateRequest) -> GateResponse:
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+

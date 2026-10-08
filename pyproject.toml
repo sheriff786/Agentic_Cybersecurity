@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-service = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
+service = ["python-dotenv>=0.15", "fastapi>=0.110", "uvicorn[standard]>=0.29"]
 parsers = ["beautifulsoup4>=4.12", "python-docx>=1.1"]
 judge = ["openai>=1.0"]
 dev = ["pytest>=8.0"]
@@ -24,3 +24,4 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+

@@ -47,13 +47,17 @@ def assess(text: str, decoded_spans: list[str] | None = None,
         judge_reason = "uncertain_band"
     elif judge_on_action and combined < UNCERTAIN_LOW and action_signals.is_action_bearing(text):
         judge_reason = "action_bearing"
+    print(f"DEBUG: judge_on_action={judge_on_action}, combined={combined}, action_bearing={action_signals.is_action_bearing(text)}, judge_reason='{judge_reason}'", flush=True)
     if judge_reason and judge_backend is not None:
+        print(f"DEBUG: Invoking judge with text={text[:50]}", flush=True)
         verdict = llm_judge.judge(text, backend=judge_backend)
+        print(f"DEBUG: Judge verdict: {verdict}", flush=True)
         judge_invoked = True
         if verdict and verdict.attack_type:
             attack_types.add(verdict.attack_type)
             evidence.append(verdict.evidence_span)
             combined = max(combined, verdict.confidence)
+            print(f"DEBUG: Updated combined to {combined}", flush=True)
 
     return RiskAssessment(
         risk_score=combined,
