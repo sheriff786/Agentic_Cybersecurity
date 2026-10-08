@@ -221,3 +221,6 @@ __marimo__/
 # held-out public eval slices (check dataset licence before committing)
 data/attacks/public_*/
 data/benign/public_*/
+
+# raw downloaded datasets
+
