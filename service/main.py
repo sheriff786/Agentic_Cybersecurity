@@ -41,6 +41,10 @@ def _get_source_type(filename: str, content_type: str) -> SourceType:
             return SourceType.WORD_DOC
         if content_type.startswith("image/"):
             return SourceType.IMAGE
+        if content_type == "application/json":
+            return SourceType.API_RESPONSE
+        if content_type == "message/rfc822":
+            return SourceType.EMAIL
         if content_type == "text/plain":
             return SourceType.USER_MESSAGE
         # default to USER_MESSAGE
@@ -52,7 +56,7 @@ def _get_source_type(filename: str, content_type: str) -> SourceType:
         return SourceType.PDF
     if ext in (".docx", ".doc"):
         return SourceType.WORD_DOC
-    if ext == ".txt":
+    if ext == ".txt" or ext == ".ocr.txt":
         return SourceType.USER_MESSAGE
     if ext in (".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".gif"):
         return SourceType.IMAGE
@@ -60,6 +64,12 @@ def _get_source_type(filename: str, content_type: str) -> SourceType:
         return SourceType.HTML
     if ext == ".md":
         return SourceType.MARKDOWN
+    if ext == ".eml":
+        return SourceType.EMAIL
+    if ext == ".json":
+        return SourceType.API_RESPONSE
+    if ext in (".py", ".js", ".ts", ".java", ".c", ".cpp", ".cs", ".go", ".rs", ".rb", ".php", ".sh", ".bash", ".zsh", ".fish", ".pl", ".pm", ".lua", ".dart", ".scala", ".kotlin", ".swift", ".m", ".mm", ".asm", ".s", ".sql", ".r", ".matlab", ".vb", ".vbs", ".asm", ".s", ".bat", ".cmd", ".ps1", ".psm1", ".tsx", ".jsx", ".vue", ".svelte", ".htm", ".xhtml"):
+        return SourceType.SOURCE_CODE
     # fallback to content-type
     if content_type == "application/pdf":
         return SourceType.PDF
@@ -67,6 +77,10 @@ def _get_source_type(filename: str, content_type: str) -> SourceType:
         return SourceType.WORD_DOC
     if content_type.startswith("image/"):
         return SourceType.IMAGE
+    if content_type == "application/json":
+        return SourceType.API_RESPONSE
+    if content_type == "message/rfc822":
+        return SourceType.EMAIL
     if content_type == "text/plain":
         return SourceType.USER_MESSAGE
     return SourceType.USER_MESSAGE
@@ -84,11 +98,14 @@ async def scan_file(
     source_type = _get_source_type(filename, content_type)
     # Read file content
     content = await file.read()
-    # Normalize content to text
-    from pif_firewall.ingest.normalizers import normalize
-    normalized = normalize(content, source_type, origin=origin)
-    # Call firewall scan
-    result = firewall.scan(normalized.text, source_type, session_id=session_id, origin=origin)
+    # Extract text content using appropriate extracter
+    from pif_firewall.ingest.extractors import extract_content, ExtractionError
+    try:
+        extracted_text = extract_content(filename, content)
+    except ExtractionError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    # Call firewall scan directly with extracted text
+    result = firewall.scan(extracted_text, source_type, session_id=session_id, origin=origin)
     return ScanResponse(
         decision=result.policy.decision.value,
         sanitized_text=result.policy.sanitized_text,
