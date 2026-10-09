@@ -4,6 +4,7 @@ Keeps external dependencies optional: falls back to regex-based stripping
 when a parsing library (bs4, python-docx) is not installed.
 """
 import re
+from typing import Union
 
 from pif_firewall.ingest.decoders import normalize_and_decode
 from pif_firewall.ingest.document import NormalizedDocument, SourceType, TrustLevel
@@ -35,8 +36,10 @@ def _strip_html(raw: str) -> str:
     return _TAG_RE.sub(" ", no_hidden)
 
 
-def _extract_text(raw: str, source_type: SourceType) -> str:
+def _extract_text(raw: Union[str, bytes], source_type: SourceType) -> str:
     if source_type in (SourceType.HTML, SourceType.WEB_PAGE):
+        if isinstance(raw, bytes):
+            raw = raw.decode(errors="ignore")
         try:
             from bs4 import BeautifulSoup  # optional dependency
 
@@ -52,14 +55,57 @@ def _extract_text(raw: str, source_type: SourceType) -> str:
 
             import docx  # python-docx, optional dependency
 
-            document = docx.Document(io.BytesIO(raw.encode() if isinstance(raw, str) else raw))
+            if isinstance(raw, str):
+                raw = raw.encode()
+            document = docx.Document(io.BytesIO(raw))
             return "\n".join(p.text for p in document.paragraphs)
         except ImportError:
+            if isinstance(raw, bytes):
+                return raw.decode(errors="ignore")
             return raw
+    if source_type == SourceType.PDF:
+        try:
+            import io
+            import PyPDF2
+
+            if isinstance(raw, str):
+                raw = raw.encode(errors="ignore")
+            pdf_reader = PyPDF2.PdfReader(io.BytesIO(raw))
+            text = []
+            for page in pdf_reader.pages:
+                text.append(page.extract_text() or "")
+            return "\n".join(text)
+        except ImportError:
+            # fallback: treat as raw text (will likely be garbage)
+            if isinstance(raw, bytes):
+                return raw.decode(errors="ignore")
+            return raw
+    if source_type == SourceType.IMAGE:
+        try:
+            from PIL import Image
+            import pytesseract
+            import io
+
+            if isinstance(raw, str):
+                # assume it's a base64 or path? we'll just return raw
+                return raw
+            image = Image.open(io.BytesIO(raw))
+            # Perform OCR
+            text = pytesseract.image_to_string(image)
+            return text
+        except ImportError:
+            # OCR dependencies not installed
+            if isinstance(raw, bytes):
+                # Could not extract text; return empty or raise?
+                return ""
+            return raw
+    # For any other source type, just return raw as string
+    if isinstance(raw, bytes):
+        return raw.decode(errors="ignore")
     return raw
 
 
-def normalize(raw: str, source_type: SourceType, origin: str = "unknown",
+def normalize(raw: Union[str, bytes], source_type: SourceType, origin: str = "unknown",
               trust_level: TrustLevel | None = None, decode: bool = True) -> NormalizedDocument:
     """Turn arbitrary source content into a common, decoded text representation."""
     extracted = _extract_text(raw, source_type)
