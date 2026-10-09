@@ -4,6 +4,7 @@ from fastapi import FastAPI, UploadFile, Form, File
 
 from pif_firewall.firewall import Firewall
 from pif_firewall.ingest.document import SourceType
+from pif_firewall.detection.judge_backends import make_openai_judge
 
 from service.schemas import (
     GateRequest,
@@ -14,7 +15,7 @@ from service.schemas import (
 )
 
 app = FastAPI(title="Prompt Injection Firewall - Agent Security Gateway")
-firewall = Firewall()
+firewall = Firewall(judge_backend=make_openai_judge())
 
 
 @app.post("/scan", response_model=ScanResponse)

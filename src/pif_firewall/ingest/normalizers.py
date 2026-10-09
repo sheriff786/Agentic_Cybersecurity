@@ -75,7 +75,7 @@ def _extract_text(raw: Union[str, bytes], source_type: SourceType) -> str:
             for page in pdf_reader.pages:
                 text.append(page.extract_text() or "")
             return "\n".join(text)
-        except ImportError:
+        except Exception:
             # fallback: treat as raw text (will likely be garbage)
             if isinstance(raw, bytes):
                 return raw.decode(errors="ignore")
@@ -93,8 +93,8 @@ def _extract_text(raw: Union[str, bytes], source_type: SourceType) -> str:
             # Perform OCR
             text = pytesseract.image_to_string(image)
             return text
-        except ImportError:
-            # OCR dependencies not installed
+        except Exception:
+            # OCR dependencies not installed or other error
             if isinstance(raw, bytes):
                 # Could not extract text; return empty or raise?
                 return ""

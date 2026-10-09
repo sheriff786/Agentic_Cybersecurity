@@ -66,6 +66,12 @@ _PATTERNS: dict[AttackType, list] = {
         re.compile(r"(api[_ ]?key|password|secret[_ ]?key|access[_ ]?token|private[_ ]?key)\s*[:=]", re.I),
         re.compile(r"enter your (password|credentials|otp|one-time code)", re.I),
         re.compile(r"-----BEGIN (RSA |EC )?PRIVATE KEY-----"),
+        # Credential harvesting / data exfiltration from documents
+        re.compile(
+            r"\b(locate|extract|find|get|retrieve|harvest|collect|gather)\b.{0,50}?\b"
+            r"(usernames?|passwords?|credentials?|access[_ ]?tokens?|api[_ ]?keys?|cookies?|authentication\s+headers?)\b.{0,50}?\b"
+            r"(include|return|output|send|send back|in the response|in your response)",
+            re.I | re.S),
     ],
     AttackType.CONTEXT_POISONING: [
         re.compile(r"for (all|any) future (messages|turns|requests|conversations)", re.I),
