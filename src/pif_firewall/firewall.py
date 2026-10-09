@@ -29,7 +29,8 @@ class ScanResult:
 class Firewall:
     def __init__(self, judge_backend=None, audit_path: str | None = None,
                  use_normalization: bool = True, use_trust_weighting: bool = True,
-                 use_classifier: bool = True, judge_on_action: bool = True) -> None:
+                 use_classifier: bool = True, judge_on_action: bool = True,
+                 use_learned: bool = True) -> None:
         self.judge_backend = judge_backend
         self.audit = AuditLogger(path=audit_path)
         self.taint_store = TaintStore()
@@ -38,16 +39,18 @@ class Firewall:
         self.use_trust_weighting = use_trust_weighting
         self.use_classifier = use_classifier
         self.judge_on_action = judge_on_action
+        self.use_learned = use_learned
 
     # ---- content scanning -------------------------------------------------
     def scan(self, raw_text: str, source_type: SourceType, session_id: str = "default",
-        origin: str = "unknown", trust_level: TrustLevel | None = None) -> ScanResult:
-        # print(f\"FIREWALL SCAN ENTER: raw_text={raw_text[:50]}, source_type={source_type}, judge_on_action={self.judge_on_action}\", flush=True)
+             origin: str = "unknown", trust_level: TrustLevel | None = None) -> ScanResult:
         doc = normalize(raw_text, source_type, origin=origin, trust_level=trust_level,
                         decode=self.use_normalization)
         assessment = assess(doc.text, decoded_spans=doc.decoded_spans,
                             judge_backend=self.judge_backend, use_classifier=self.use_classifier,
-                            judge_on_action=self.judge_on_action)
+                            judge_on_action=self.judge_on_action,
+                            trusted_source=doc.trust_level == TrustLevel.USER,
+                            use_learned=self.use_learned)
         if self.use_trust_weighting:
             assessment.risk_score = weighted_risk(assessment.risk_score, doc.trust_level)
 

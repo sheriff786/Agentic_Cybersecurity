@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 from pif_firewall.attack_types import AttackType
+from pif_firewall.detection import learned_classifier
 from pif_firewall.firewall import Firewall
 
 from eval.attack_success import attack_success_matrix
@@ -38,6 +39,7 @@ ABLATIONS = {
     "full (no judge)":     {},
     "no_normalization":    {"use_normalization": False},
     "no_trust_weighting":  {"use_trust_weighting": False},
+    "no_learned_classifier": {"use_learned": False},
     "no_classifier":       {"use_classifier": False},
     "rules_only":          {"use_normalization": False, "use_trust_weighting": False,
                             "use_classifier": False},
@@ -111,6 +113,10 @@ def main() -> None:
         return
     n_attack = sum(c.attack_type is not None for c in cases)
     print(f"Split: {args.split} | cases: {n_attack} attack, {len(cases) - n_attack} benign")
+    print(f"Learned classifier: {learned_classifier.status()}")
+    if args.split == "dev" and learned_classifier.get_model() is not None:
+        print("WARNING: the learned classifier was trained on dev, so dev numbers are optimistic. "
+              "Trust the cross-validation report from eval.train_classifier; quote only --split test.")
     if args.split == "test":
         print("FINAL REPORT SPLIT: do not tune rules/weights on these cases.")
     if args.split == "seed":

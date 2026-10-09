@@ -22,8 +22,13 @@ class GateRequest(BaseModel):
     arguments: dict
     payload_text: str = ""
     session_id: str = "default"
+    untrusted_origin: bool = False  # True when the action was derived from retrieved/external content
 
 
 class GateResponse(BaseModel):
     decision: str
     reason: str
+
+
+class RegisterSecretRequest(BaseModel):
+    value: str

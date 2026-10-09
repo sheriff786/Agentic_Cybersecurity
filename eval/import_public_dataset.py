@@ -48,11 +48,23 @@ def read_rows(path: Path):
             yield from csv.DictReader(fh)
 
 
+# Unambiguous German function words (deliberately excludes words that are also English: was, die, war...).
+_DE_STOPWORDS = {"der", "das", "und", "ist", "nicht", "ich", "ein", "eine", "einen", "mit", "von", "fuer",
+                 "für", "auf", "dem", "den", "des", "wie", "wer", "auch", "nur", "aber", "bitte", "sind",
+                 "wird", "kann", "zu", "im", "zum", "zur", "über", "sie", "wir", "ihr", "mir", "mich",
+                 "dich", "ihre", "sich", "wenn", "dass", "oder", "noch", "nach", "vor", "bei", "aus"}
+
+
 def looks_english(text: str) -> bool:
+    """English enough for the (English-only) rules AND free of German content. German rows
+    that slip through are a dataset shortcut: the learned classifier would pick up
+    'german words = benign' instead of learning attack semantics."""
     words = [w.strip(".,!?;:'\"()").lower() for w in text.split()]
     if len(words) < 4:
         return True  # too short to judge; keep
-    return sum(w in _EN_STOPWORDS for w in words) / len(words) >= 0.12
+    english = sum(w in _EN_STOPWORDS for w in words) / len(words)
+    german = sum(w in _DE_STOPWORDS for w in words) / len(words)
+    return english >= 0.12 and german < 0.05
 
 
 def bucket_of(text: str) -> str:

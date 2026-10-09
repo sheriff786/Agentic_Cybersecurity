@@ -43,7 +43,8 @@ uvicorn service.main:app --reload
 |---|---|
 | Normalize: zero-width, homoglyph, base64, hex, ROT13, hidden HTML | implemented |
 | Rule detectors (9 attack types, per-type calibrated weights) | implemented |
-| "Embedding classifier" | **placeholder**: a lexical keyword score behind the same interface, not an embedding model |
+| Lexical score ("embedding classifier") | **placeholder**: keyword counter, not an embedding model |
+| Learned classifier | TF-IDF n-grams + logistic regression, trained offline on the DEV split (`python -m eval.train_classifier`), exported as dependency-free JSON; inactive until `models/injection_clf.json` exists. Trust its cross-validation report, not dev numbers |
 | LLM judge | **interface + OpenAI backend** (`detection/judge_backends.py`); runs only if you pass `judge_backend=`. Routed to when the score is uncertain OR when untrusted content is action-bearing (verb + email/URL/path), so plain-language attacks reach it. Verified with mocked clients, not a live API |
 | Trust weighting, 3-tier Allow/Quarantine/Block, session taint | implemented |
 | Tool gate: sensitive-path reads, DLP + secret registry, external-send review | implemented; sensitivity comes from naming/patterns/registry (see failure cases) |

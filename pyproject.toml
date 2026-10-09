@@ -13,10 +13,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-service = ["python-dotenv>=0.15", "fastapi>=0.110", "uvicorn[standard]>=0.29"]
+service = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
 parsers = ["beautifulsoup4>=4.12", "python-docx>=1.1"]
 judge = ["openai>=1.0"]
-dev = ["pytest>=8.0"]
+ml = ["scikit-learn>=1.3"]  # training only; inference has no ML dependency
+dev = ["pytest>=8.0", "httpx>=0.27"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -24,4 +25,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-
